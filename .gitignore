@@ -49,3 +49,6 @@ ipch/
 # Visual Studio profiler
 *.psess
 *.vsp
+
+*.jpg
+*.gif
