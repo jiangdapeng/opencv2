@@ -119,11 +119,17 @@ void test_image_operators()
 
 void test_chp3()
 {
+	/*
 	auto img1 = cv::imread("t2.jpg");
 	auto cd = ColorDetector();
-	cd.setDistThreshold(300);
+	cd.setDistThreshold(200);
 	auto result = cd.process(img1);
 	showImg(result,"result");
+	*/
+	auto cdc = ColorDetectorController::getInstance();
+	cdc->setImage("test.jpg");
+	cdc->process();
+	showImg(cdc->getResult(),"result");
 	cv::waitKey(0);
 }
 int main()

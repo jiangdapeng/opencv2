@@ -26,6 +26,13 @@ void ColorDetector::setTarget(cv::Vec3b color)
 	targetColor = color;
 }
 
+void ColorDetector::setTarget(const uchar red,const uchar green, const uchar blue)
+{
+	targetColor[0] = red;
+	targetColor[1] = green;
+	targetColor[0] = blue;
+}
+
 cv::Vec3b ColorDetector::getTarget() const
 {
 	return targetColor;
@@ -58,3 +65,6 @@ cv::Mat ColorDetector::process(const cv::Mat &img)
 	}
 	return result;
 }
+
+// ³õÊ¼»¯µ¥Àý
+ColorDetectorController* ColorDetectorController::cdc = NULL;
