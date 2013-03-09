@@ -1,11 +1,8 @@
-#ifndef OPENCV2_CHP2_H
-#define OPENCV2_CHP2_H
+#ifndef ASUWILL_OPENCV2_CHP2_H
+#define ASUWILL_OPENCV2_CHP2_H
 
-#include <opencv2\core\core.hpp>
-#include <opencv2\highgui\highgui.hpp>
-#include <opencv2\imgproc\imgproc.hpp>
+#include "opencv2.h"
 #include <functional>
-
 // show image in a window
 void showImg(const cv::Mat& img, const std::string& wname);
 

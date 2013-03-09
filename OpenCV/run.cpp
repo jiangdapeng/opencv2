@@ -1,4 +1,5 @@
 #include "chp1.h"
+#include "chp3.h"
 #include <iostream>
 #include <sstream>
 using namespace std;
@@ -115,11 +116,22 @@ void test_image_operators()
 	showImg(r4,"r4");
 	cv::waitKey(0);
 }
+
+void test_chp3()
+{
+	auto img1 = cv::imread("t2.jpg");
+	auto cd = ColorDetector();
+	cd.setDistThreshold(300);
+	auto result = cd.process(img1);
+	showImg(result,"result");
+	cv::waitKey(0);
+}
 int main()
 {
 	//run_chp1();
 	//test_sharpen();
 	//test_combine();
-	test_image_operators();
+	//test_image_operators();
+	test_chp3();
 	return 0;
 }
