@@ -83,6 +83,7 @@
   <ItemGroup>
     <ClInclude Include="chp1.h" />
     <ClInclude Include="chp3.h" />
+    <ClInclude Include="chp4.h" />
     <ClInclude Include="opencv2.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

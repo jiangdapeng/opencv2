@@ -1,5 +1,6 @@
 #include "chp1.h"
 #include "chp3.h"
+#include "chp4.h"
 #include <iostream>
 #include <sstream>
 using namespace std;
@@ -132,12 +133,33 @@ void test_chp3()
 	showImg(cdc->getResult(),"result");
 	cv::waitKey(0);
 }
+
+void test_chp4()
+{
+	// 显示一个图像的颜色直方图 （单通道）
+	auto img = cv::imread("lena.tif");
+	showImg(img,"img");
+	Histogram1D hgen;
+	showImg(hgen.getHistImage(img),"hist");
+	cv::Mat threshold;
+	cv::threshold(img,threshold,130,255,cv::THRESH_BINARY);
+	showImg(threshold,"threshold");
+	// 图片反色
+	showImg(hgen.inverse(img),"inverse");
+	// stretch 增强对比度
+	showImg(hgen.stretch(img),"stretch");
+	showImg(hgen.stretch(img,20),"stretch 20");
+	// equalize histogram
+	auto r = hgen.equalize(img);
+	showImg(hgen.equalize(img),"equalize");
+	cv::waitKey(0);
+}
 int main()
 {
 	//run_chp1();
 	//test_sharpen();
 	//test_combine();
 	//test_image_operators();
-	test_chp3();
+	test_chp4();
 	return 0;
 }
