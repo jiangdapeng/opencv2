@@ -13,7 +13,7 @@ public:
 		hranges[0] = 0;
 		hranges[1] = 255;
 		ranges[0] = hranges;
-		channels[0] = 1;
+		channels[0] = 0;
 	}
 	cv::MatND getHistogram(const cv::Mat& img)
 	{
@@ -149,7 +149,7 @@ private:
 	int channels[1]; // gray image
 };
 
-
+// color histogram
 class Histogram
 {
 public:
@@ -159,9 +159,9 @@ public:
 		hranges[0] = 0;
 		hranges[1] = 255;
 		ranges[2] = ranges[1] = ranges[0] = hranges;
-		channels[0] = 1;
-		channels[1] = 2;
-		channels[2] = 3;
+		channels[0] = 0;
+		channels[1] = 1;
+		channels[2] = 2;
 	}
 	cv::MatND getHistogram(const cv::Mat& img)
 	{
@@ -172,7 +172,7 @@ public:
 			channels,
 			cv::Mat(), // mask, here no mask is used
 			hist,      // output
-			3,		   // 1D histogram
+			3,		   // histogram
 			histSize,  //
 			ranges);
 		return hist;
@@ -188,16 +188,134 @@ public:
 			channels,
 			cv::Mat(), // mask, here no mask is used
 			hist,      // output
-			3,		   // 1D histogram
+			3,		   // 3D histogram
 			histSize,  //
 			ranges);
 		return hist;
+	}
+
+	// 计算 1D Hue histogram with mask
+	cv::MatND getHueHistogram(const cv::Mat &img, int minSat)
+	{
+		cv::MatND hist;
+		cv::Mat hsv;
+		cv::cvtColor(img,hsv,CV_BGR2HSV);// 颜色空间转换
+		cv::Mat mask;
+		if (minSat > 0)
+		{
+			// split the 3 channels into 3 images
+			std::vector<cv::Mat> v;
+			cv::split(hsv,v);
+			// mask out low saturated pixels
+			cv::threshold(v[1],mask,minSat,255,cv::THRESH_BINARY);
+		}
+		hranges[0] = 0;
+		hranges[1] = 180; // attention!
+		channels[0] = 0;  // the hue channel
+		cv::calcHist(&hsv,
+			1,   // 1 image
+			channels,
+			mask,
+			hist,// output
+			1,   // 1D
+			histSize,
+			ranges
+			);
+		return hist;
+	}
+	// reduce color
+	cv::Mat colorReduce(const cv::Mat &img, int div=32)
+	{
+		int w = img.cols;
+		int h = img.rows;
+		int nc = w*img.channels();
+		cv::Mat result;
+		result.create(h,w,img.type());
+		int half = div/2;
+		int shift = static_cast<int>(
+			log(static_cast<double>(div))/log(2.0));
+		int MASK = 0xFF << shift;
+		for(int i=0;i<h;++i)
+		{
+			// for each row
+			// pay attention to method "ptr"
+			// return a row
+			const uchar* data = img.ptr<uchar>(i);
+			uchar* out = result.ptr<uchar>(i);
+			for( int j=0;j<nc;++j)
+			{
+				//data[j] = data[j]/div * div+half;
+				out[j] = (data[j] & MASK)+half; //这个最快
+			}
+		}
+		return result;
 	}
 private:
 	int histSize[3]; // number of bins
 	float hranges[2]; // range of pixel value
 	const float* ranges[3];
 	int channels[3]; // color image
+};
+
+// using histogram to detect
+class ContentDetector
+{
+public:
+	ContentDetector():threshold(-1.0f)
+	{
+		hranges[0] = 0.0;
+		hranges[1] = 255.0;
+		for(int i=0;i<3;++i)
+			ranges[i] = hranges;
+		channels[0] = 0;
+		channels[1] = 1;
+		channels[2] = 2;
+	}
+	void setThreshold(float t)
+	{
+		threshold = t;
+	}
+	float getThreshold() const
+	{
+		return threshold;
+	}
+
+	// histogram used to detect content
+	void setHistogram(const cv::MatND &h)
+	{
+		hist = h;
+		cv::normalize(hist,hist,1.0);
+	}
+
+	void setRanges(float min, float max)
+	{
+		hranges[0] = min;
+		hranges[1] = max;
+	}
+	cv::Mat find(const cv::Mat &img)
+	{
+		cv::Mat result;
+		cv::calcBackProject(&img,// source
+			1,					// 1 image
+			channels,		// image channels
+			hist,				// histogram
+			result,				// result
+			ranges,				// ranges
+			255.0);				// scale
+
+		if(threshold > 0.0)
+		{
+			cv::threshold(result,result,255*threshold,255,cv::THRESH_BINARY);
+		}
+		return result;
+	}
+
+private:
+	float hranges[2];
+	const float* ranges[3];
+	int channels[3];
+	float threshold;
+	cv::MatND hist;
 };
 
 #endif

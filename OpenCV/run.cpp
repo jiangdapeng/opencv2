@@ -154,12 +154,41 @@ void test_chp4()
 	showImg(hgen.equalize(img),"equalize");
 	cv::waitKey(0);
 }
+
+void test_chp4_2()
+{
+	auto img = cv::imread("t3.jpg");
+	showImg(img,"img");
+	Histogram hc;
+	img = hc.colorReduce(img); // œ»reduce color
+	showImg(img,"color reduce");
+	cv::Mat ROI = img(cv::Rect(0,150,50,50));// 
+	auto hist = hc.getHistogram(ROI);
+	ContentDetector finder;
+	finder.setHistogram(hist);
+	finder.setThreshold(0.05f);
+	auto result = finder.find(img);
+	showImg(result,"result");
+	cv::waitKey(0);
+}
+
+void test_chp4_3()
+{
+	auto img = cv::imread("t3.jpg");
+	auto ROI = img(cv::Rect(0,0,50,50));
+	int minSat = 60;
+	Histogram  hc;
+	auto hist = hc.getHueHistogram(ROI,minSat);
+	ContentDetector finder;
+	finder.setHistogram(hist);
+
+}
 int main()
 {
 	//run_chp1();
 	//test_sharpen();
 	//test_combine();
 	//test_image_operators();
-	test_chp4();
+	test_chp4_2();
 	return 0;
 }
